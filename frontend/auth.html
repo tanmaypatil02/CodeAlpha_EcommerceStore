@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Account | CodeAlpha Store</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f4efe6;
+            color: #2b241e;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 1050px;
+            min-height: 620px;
+
+            display: grid;
+            grid-template-columns: 1fr 430px;
+
+            overflow: hidden;
+            border-radius: 26px;
+
+            background: #fffdf8;
+
+            box-shadow:
+                0 25px 70px rgba(55, 42, 28, 0.16);
+        }
+
+
+        /* =========================
+           LEFT SIDE
+        ========================= */
+
+        .auth-brand {
+            position: relative;
+
+            padding: 70px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #30261f,
+                    #4a382c
+                );
+
+            color: white;
+
+            overflow: hidden;
+        }
+
+        .auth-brand::before {
+            content: "";
+
+            position: absolute;
+
+            width: 420px;
+            height: 420px;
+
+            border-radius: 50%;
+
+            right: -190px;
+            top: -180px;
+
+            border: 1px solid rgba(230, 166, 110, 0.2);
+        }
+
+        .auth-brand::after {
+            content: "";
+
+            position: absolute;
+
+            width: 300px;
+            height: 300px;
+
+            border-radius: 50%;
+
+            right: -130px;
+            bottom: -150px;
+
+            background: #c96b32;
+
+            opacity: 0.12;
+        }
+
+        .brand-small {
+            position: relative;
+            z-index: 2;
+
+            color: #e6a66e;
+
+            font-size: 13px;
+            font-weight: bold;
+
+            letter-spacing: 4px;
+
+            margin-bottom: 25px;
+        }
+
+        .auth-brand h1 {
+            position: relative;
+            z-index: 2;
+
+            margin: 0 0 25px;
+
+            font-family: Georgia, serif;
+
+            font-size: 58px;
+            line-height: 1.08;
+
+            font-weight: normal;
+        }
+
+        .auth-brand h1 span {
+            color: #e6a66e;
+        }
+
+        .auth-brand p {
+            position: relative;
+            z-index: 2;
+
+            max-width: 480px;
+
+            margin: 0;
+
+            color: #d8cec4;
+
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .auth-features {
+            position: relative;
+            z-index: 2;
+
+            margin-top: 40px;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 17px;
+        }
+
+        .auth-feature {
+            color: #eee6df;
+            font-size: 14px;
+        }
+
+        .auth-feature span {
+            color: #e6a66e;
+            margin-right: 10px;
+        }
+
+
+        /* =========================
+           RIGHT SIDE
+        ========================= */
+
+        .auth-panel {
+            padding: 55px 48px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            background: #fffdf8;
+        }
+
+        .auth-panel h2 {
+            margin: 0 0 8px;
+
+            font-family: Georgia, serif;
+
+            font-size: 35px;
+            font-weight: normal;
+
+            color: #29231e;
+        }
+
+        .auth-subtitle {
+            margin-bottom: 30px;
+
+            color: #8b8177;
+
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+
+        /* =========================
+           INPUTS
+        ========================= */
+
+        .auth-panel input {
+            width: 100%;
+
+            padding: 15px 16px;
+
+            margin-bottom: 15px;
+
+            border-radius: 10px;
+
+            border: 1px solid #ded6cb;
+
+            outline: none;
+
+            background: #faf7f0;
+
+            color: #29231e;
+
+            font-size: 14px;
+
+            transition: 0.25s;
+        }
+
+        .auth-panel input::placeholder {
+            color: #aaa095;
+        }
+
+        .auth-panel input:focus {
+            border-color: #c96b32;
+
+            background: #fff;
+
+            box-shadow:
+                0 0 0 3px rgba(201, 107, 50, 0.1);
+        }
+
+
+        /* =========================
+           MAIN BUTTON
+        ========================= */
+
+        .auth-main-btn {
+            width: 100%;
+
+            padding: 15px;
+
+            margin-top: 8px;
+
+            border: none;
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            background: #c96b32;
+
+            color: white;
+
+            font-size: 14px;
+            font-weight: bold;
+
+            transition: 0.25s;
+        }
+
+        .auth-main-btn:hover {
+            background: #ad5525;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 10px 25px rgba(201, 107, 50, 0.25);
+        }
+
+
+        /* =========================
+           CONTINUE WITHOUT LOGIN
+        ========================= */
+
+        .guest-btn {
+            width: 100%;
+
+            padding: 14px;
+
+            margin-top: 12px;
+
+            border-radius: 10px;
+
+            border: 1px solid #d8cfc4;
+
+            background: transparent;
+
+            color: #5e544b;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            transition: 0.25s;
+        }
+
+        .guest-btn:hover {
+            border-color: #c96b32;
+
+            color: #c96b32;
+
+            background: #fff8f0;
+        }
+
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        #auth-message {
+            min-height: 20px;
+
+            margin-top: 18px;
+
+            text-align: center;
+
+            color: #b45f2c;
+
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           SWITCH
+        ========================= */
+
+        .auth-switch {
+            margin-top: 25px;
+
+            text-align: center;
+
+            color: #8b8177;
+
+            font-size: 13px;
+        }
+
+        .auth-switch button {
+            border: none;
+
+            background: none;
+
+            color: #c96b32;
+
+            cursor: pointer;
+
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .auth-switch button:hover {
+            color: #8f421d;
+        }
+
+
+        /* =========================
+           BACK HOME
+        ========================= */
+
+        .back-home {
+            display: block;
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: #9a9086;
+
+            text-decoration: none;
+
+            font-size: 13px;
+        }
+
+        .back-home:hover {
+            color: #c96b32;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            .auth-page {
+                padding: 15px;
+            }
+
+            .auth-wrapper {
+                grid-template-columns: 1fr;
+
+                max-width: 500px;
+
+                min-height: auto;
+            }
+
+            .auth-brand {
+                padding: 45px 35px;
+
+                text-align: center;
+            }
+
+            .auth-brand h1 {
+                font-size: 42px;
+            }
+
+            .auth-brand p {
+                margin: auto;
+            }
+
+            .auth-features {
+                display: none;
+            }
+
+            .auth-panel {
+                padding: 40px 30px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="auth-page">
+
+    <div class="auth-wrapper">
+
+
+        <!-- =========================
+             LEFT BRANDING
+        ========================= -->
+
+        <div class="auth-brand">
+
+            <div class="brand-small">
+                CODEALPHA STORE
+            </div>
+
+            <h1>
+                Shop smarter.<br>
+                <span>Live better.</span>
+            </h1>
+
+            <p>
+                Discover quality products, explore new collections
+                and enjoy a simple, elegant shopping experience.
+            </p>
+
+
+            <div class="auth-features">
+
+                <div class="auth-feature">
+                    <span>✦</span>
+                    Premium products
+                </div>
+
+                <div class="auth-feature">
+                    <span>✦</span>
+                    Secure shopping experience
+                </div>
+
+                <div class="auth-feature">
+                    <span>✦</span>
+                    Fast and simple checkout
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             LOGIN / REGISTER PANEL
+        ========================= -->
+
+        <div class="auth-panel">
+
+            <h2 id="auth-title">
+                Welcome back
+            </h2>
+
+            <div
+                class="auth-subtitle"
+                id="auth-subtitle"
+            >
+                Login to your CodeAlpha Store account.
+            </div>
+
+
+            <!-- NAME -->
+
+            <input
+                type="text"
+                id="auth-name"
+                placeholder="Full Name"
+                style="display: none;"
+            >
+
+
+            <!-- PHONE -->
+
+            <input
+                type="tel"
+                id="auth-phone"
+                placeholder="Phone Number"
+                style="display: none;"
+            >
+
+
+            <!-- EMAIL -->
+
+            <input
+                type="email"
+                id="auth-email"
+                placeholder="Email Address"
+            >
+
+
+            <!-- PASSWORD -->
+
+            <input
+                type="password"
+                id="auth-password"
+                placeholder="Password"
+            >
+
+
+            <!-- LOGIN / REGISTER -->
+
+            <button
+                class="auth-main-btn"
+                id="auth-button"
+            >
+                Login →
+            </button>
+
+
+            <!-- CONTINUE AS GUEST -->
+
+            <button
+                class="guest-btn"
+                id="guest-button"
+            >
+                Continue without logging in
+            </button>
+
+
+            <!-- MESSAGE -->
+
+            <div id="auth-message"></div>
+
+
+            <!-- SWITCH -->
+
+            <div class="auth-switch">
+
+                <span id="switch-text">
+                    Don't have an account?
+                </span>
+
+                <button id="switch-auth">
+                    Create one
+                </button>
+
+            </div>
+
+
+            <!-- BACK -->
+
+            <a
+                href="index.html"
+                class="back-home"
+            >
+                ← Go to Home
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    let isLogin = true;
+
+
+    // =========================
+    // ELEMENTS
+    // =========================
+
+    const title =
+        document.getElementById("auth-title");
+
+    const subtitle =
+        document.getElementById("auth-subtitle");
+
+    const nameInput =
+        document.getElementById("auth-name");
+
+    const phoneInput =
+        document.getElementById("auth-phone");
+
+    const emailInput =
+        document.getElementById("auth-email");
+
+    const passwordInput =
+        document.getElementById("auth-password");
+
+    const authButton =
+        document.getElementById("auth-button");
+
+    const guestButton =
+        document.getElementById("guest-button");
+
+    const switchButton =
+        document.getElementById("switch-auth");
+
+    const switchText =
+        document.getElementById("switch-text");
+
+    const message =
+        document.getElementById("auth-message");
+
+
+    // =========================
+    // LOGIN / REGISTER SWITCH
+    // =========================
+
+    switchButton.addEventListener(
+        "click",
+        () => {
+
+            isLogin = !isLogin;
+
+            message.textContent = "";
+
+
+            if (isLogin) {
+
+                title.textContent =
+                    "Welcome back";
+
+                subtitle.textContent =
+                    "Login to your CodeAlpha Store account.";
+
+                nameInput.style.display =
+                    "none";
+
+                phoneInput.style.display =
+                    "none";
+
+                authButton.textContent =
+                    "Login →";
+
+                switchText.textContent =
+                    "Don't have an account?";
+
+                switchButton.textContent =
+                    "Create one";
+
+            }
+
+            else {
+
+                title.textContent =
+                    "Create account";
+
+                subtitle.textContent =
+                    "Join CodeAlpha Store and start shopping.";
+
+                nameInput.style.display =
+                    "block";
+
+                phoneInput.style.display =
+                    "block";
+
+                authButton.textContent =
+                    "Create Account →";
+
+                switchText.textContent =
+                    "Already have an account?";
+
+                switchButton.textContent =
+                    "Login";
+
+            }
+
+        }
+    );
+
+
+    // =========================
+    // CONTINUE WITHOUT LOGIN
+    // =========================
+
+    guestButton.addEventListener(
+        "click",
+        () => {
+
+            localStorage.setItem(
+                "guestMode",
+                "true"
+            );
+
+            window.location.href =
+                "index.html";
+
+        }
+    );
+
+
+    // =========================
+    // LOGIN / REGISTER
+    // =========================
+
+    authButton.addEventListener(
+        "click",
+        async () => {
+
+            const name =
+                nameInput.value.trim();
+
+            const phone =
+                phoneInput.value.trim();
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value.trim();
+
+
+            // =========================
+            // VALIDATION
+            // =========================
+
+            if (
+                !email ||
+                !password ||
+                (!isLogin && (!name || !phone))
+            ) {
+
+                message.textContent =
+                    "Please fill all fields.";
+
+                return;
+
+            }
+
+
+            // =========================
+            // API ENDPOINT
+            // =========================
+
+            const endpoint =
+                isLogin
+                    ? "/api/login"
+                    : "/api/register";
+
+
+            // =========================
+            // DATA
+            // =========================
+
+            const data =
+                isLogin
+
+                    ? {
+                        email: email,
+                        password: password
+                    }
+
+                    : {
+                        name: name,
+                        phone: phone,
+                        email: email,
+                        password: password
+                    };
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        endpoint,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(data)
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                // =========================
+                // ERROR
+                // =========================
+
+                if (!response.ok) {
+
+                    message.textContent =
+                        result.message;
+
+                    return;
+
+                }
+
+
+                // =========================
+                // SUCCESS
+                // =========================
+
+                message.textContent =
+                    result.message;
+
+
+                // =========================
+                // LOGIN SUCCESS
+                // =========================
+
+                if (isLogin) {
+
+                    localStorage.removeItem(
+                        "guestMode"
+                    );
+
+                    localStorage.setItem(
+                        "user",
+                        JSON.stringify(result.user)
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            window.location.href =
+                                "index.html";
+
+                        },
+                        800
+                    );
+
+                }
+
+
+                // =========================
+                // REGISTER SUCCESS
+                // =========================
+
+                else {
+
+                    setTimeout(
+                        () => {
+
+                            isLogin = true;
+
+
+                            title.textContent =
+                                "Welcome back";
+
+                            subtitle.textContent =
+                                "Login to your CodeAlpha Store account.";
+
+
+                            nameInput.style.display =
+                                "none";
+
+                            phoneInput.style.display =
+                                "none";
+
+
+                            authButton.textContent =
+                                "Login →";
+
+
+                            switchText.textContent =
+                                "Don't have an account?";
+
+
+                            switchButton.textContent =
+                                "Create one";
+
+
+                            nameInput.value = "";
+                            phoneInput.value = "";
+                            emailInput.value = "";
+                            passwordInput.value = "";
+
+
+                            message.textContent =
+                                "Account created! Please login.";
+
+                        },
+                        800
+                    );
+
+                }
+
+            }
+
+
+            catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    "Unable to connect to server.";
+
+            }
+
+        }
+    );
+
+</script>
+
+
+</body>
+
+</html>

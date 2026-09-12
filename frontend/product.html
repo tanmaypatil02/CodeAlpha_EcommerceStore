@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Product Details | CodeAlpha Store</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>CodeAlpha Store 🛍️</h1>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="index.html">Products</a>
+        <a href="cart.html">Cart 🛒</a>
+    </nav>
+</header>
+
+
+<main>
+
+    <div id="product-details">
+
+        <div class="product-loading">
+            Loading product...
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer>
+    <p>© 2026 CodeAlpha E-Commerce Store</p>
+</footer>
+
+
+<script src="script.js"></script>
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const productId =
+        new URLSearchParams(window.location.search)
+        .get("id");
+
+    const container =
+        document.getElementById("product-details");
+
+    if (!productId) {
+        container.innerHTML = `
+            <div class="product-loading">
+                Product not found.
+            </div>
+        `;
+        return;
+    }
+
+    fetch("/api/products")
+        .then(response => response.json())
+        .then(products => {
+
+            const product =
+                products.find(
+                    item => String(item.id) === String(productId)
+                );
+
+            if (!product) {
+
+                container.innerHTML = `
+                    <div class="product-loading">
+                        Product not found.
+                    </div>
+                `;
+
+                return;
+            }
+
+            container.innerHTML = `
+
+                <div class="details-card">
+
+                    <div class="details-image">
+                        🛍️
+                    </div>
+
+                    <div class="details-content">
+
+                        <span class="details-category">
+                            ${product.category.toUpperCase()}
+                        </span>
+
+                        <h2>
+                            ${product.name}
+                        </h2>
+
+                        <div class="details-rating">
+                            ⭐⭐⭐⭐⭐
+                            <span>4.8 / 5</span>
+                        </div>
+
+                        <h3 class="details-price">
+                            ₹${product.price.toLocaleString("en-IN")}
+                        </h3>
+
+                        <p class="details-description">
+                            ${product.description}
+                        </p>
+
+                        <div class="stock-status">
+                            ✓ In Stock
+                        </div>
+
+                        <div class="details-actions">
+
+                            <button
+                                class="details-cart-btn"
+                                onclick="addProductToCart(
+                                    ${product.id},
+                                    '${product.name.replace(/'/g, "\\'")}',
+                                    ${product.price}
+                                )">
+                                🛒 Add to Cart
+                            </button>
+
+                            <button
+                                class="buy-now-btn">
+                                Buy Now →
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            container.innerHTML = `
+                <div class="product-loading">
+                    Unable to load product.
+                </div>
+            `;
+
+        });
+
+});
+
+
+// Add product from details page
+function addProductToCart(id, name, price) {
+
+    let cart =
+        JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existing =
+        cart.find(item => item.name === name);
+
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({
+            name: name,
+            price: price,
+            quantity: 1
+        });
+    }
+
+    localStorage.setItem(
+        "cart",
+        JSON.stringify(cart)
+    );
+
+    showNotification(
+        "🛒 " + name + " added to cart!"
+    );
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CodeAlpha E-Commerce Store</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header>
+
+        <h1>
+            CodeAlpha Store 🛍️
+        </h1>
+
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="#products-section">
+                Products
+            </a>
+
+            <a href="cart.html">
+                Cart 🛒
+            </a>
+
+            <a
+                href="auth.html"
+                id="account-link"
+            >
+                Login 🔐
+            </a>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <main>
+
+
+        <!-- WELCOME SECTION -->
+
+        <section class="hero-section">
+
+            <h2>
+                Welcome to CodeAlpha Store
+            </h2>
+
+            <p>
+                Find the best products at amazing prices.
+            </p>
+
+        </section>
+
+
+
+        <!-- =========================
+             PRODUCTS SECTION
+        ========================== -->
+
+        <section id="products-section">
+
+            <h2>
+                Featured Products
+            </h2>
+
+
+
+            <!-- SEARCH -->
+
+            <div class="search-wrapper">
+
+                <input
+                    type="text"
+                    id="product-search"
+                    placeholder="🔍 Search products..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+
+            <!-- FILTER AND SORT -->
+
+            <div class="filter-bar">
+
+
+                <!-- CATEGORY FILTER -->
+
+                <select id="category-filter">
+
+                    <option value="all">
+                        All Categories
+                    </option>
+
+                    <option value="audio">
+                        Audio
+                    </option>
+
+                    <option value="wearables">
+                        Wearables
+                    </option>
+
+                    <option value="footwear">
+                        Footwear
+                    </option>
+
+                    <option value="accessories">
+                        Accessories
+                    </option>
+
+                    <option value="electronics">
+                        Electronics
+                    </option>
+
+                </select>
+
+
+
+                <!-- SORT -->
+
+                <select id="sort-products">
+
+                    <option value="default">
+                        Sort By
+                    </option>
+
+                    <option value="low-high">
+                        Price: Low to High
+                    </option>
+
+                    <option value="high-low">
+                        Price: High to Low
+                    </option>
+
+                    <option value="name">
+                        Name: A–Z
+                    </option>
+
+                </select>
+
+
+            </div>
+
+
+
+            <!-- PRODUCTS WILL LOAD HERE -->
+
+            <div id="products-container">
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <p>
+            © 2026 CodeAlpha E-Commerce Store
+            <p>Made with ❤️ by Tanmay ⚡</p> 
+        </p>
+
+    </footer>
+
+
+
+    <!-- MAIN JAVASCRIPT -->
+
+    <script src="script.js"></script>
+
+
+
+    <!-- =========================
+         LOGIN / LOGOUT SYSTEM
+    ========================== -->
+
+    <script>
+
+        // Get logged-in user
+        const user =
+            JSON.parse(
+                localStorage.getItem("user")
+            );
+
+
+        // Get account button
+        const accountLink =
+            document.getElementById(
+                "account-link"
+            );
+
+
+        // If user is logged in
+        if (user) {
+
+            // Show user's name
+            accountLink.textContent =
+                "👤 " + user.name + " | Logout";
+
+
+            // Don't open auth page
+            accountLink.href = "#";
+
+
+            // Logout when clicked
+            accountLink.onclick = function () {
+
+                // Remove logged-in user
+                localStorage.removeItem("user");
+
+
+                // Optional: remove guest mode
+                localStorage.removeItem("guestMode");
+
+
+                // Show message
+                alert(
+                    "You have been logged out successfully! 👋"
+                );
+
+
+                // Reload home page
+                window.location.href =
+                    "index.html";
+
+            };
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

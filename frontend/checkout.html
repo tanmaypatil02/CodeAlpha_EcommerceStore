@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Checkout | CodeAlpha Store</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header>
+
+        <h1>
+            CodeAlpha Store 🛍️
+        </h1>
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="index.html#products-section">
+                Products
+            </a>
+
+            <a href="cart.html">
+                Cart 🛒
+            </a>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- =========================
+         CHECKOUT
+    ========================== -->
+
+    <main>
+
+        <h2>
+            Checkout 🔐
+        </h2>
+
+
+        <div class="checkout-container">
+
+
+            <!-- =========================
+                 CUSTOMER DETAILS
+            ========================== -->
+
+            <section class="checkout-form">
+
+                <h3>
+                    Delivery Details
+                </h3>
+
+
+                <form id="checkout-form">
+
+
+                    <!-- NAME -->
+
+                    <label for="name">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Enter your full name"
+                        required
+                    >
+
+
+
+                    <!-- PHONE -->
+
+                    <label for="phone">
+                        Phone Number
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        placeholder="Enter 10-digit phone number"
+                        pattern="[0-9]{10}"
+                        maxlength="10"
+                        required
+                    >
+
+
+
+                    <!-- ADDRESS -->
+
+                    <label for="address">
+                        Delivery Address
+                    </label>
+
+                    <textarea
+                        id="address"
+                        rows="4"
+                        placeholder="Enter your complete address"
+                        required
+                    ></textarea>
+
+
+
+                    <!-- CITY -->
+
+                    <label for="city">
+                        City
+                    </label>
+
+                    <input
+                        type="text"
+                        id="city"
+                        placeholder="Enter your city"
+                        required
+                    >
+
+
+
+                    <!-- PINCODE -->
+
+                    <label for="pincode">
+                        Pincode
+                    </label>
+
+                    <input
+                        type="text"
+                        id="pincode"
+                        placeholder="Enter 6-digit pincode"
+                        pattern="[0-9]{6}"
+                        maxlength="6"
+                        required
+                    >
+
+
+
+                    <!-- PLACE ORDER -->
+
+                    <button
+                        type="submit"
+                        class="checkout-btn"
+                    >
+                        Place Order 🛍️
+                    </button>
+
+
+                </form>
+
+            </section>
+
+
+
+            <!-- =========================
+                 ORDER SUMMARY
+            ========================== -->
+
+            <section class="checkout-summary">
+
+                <h3>
+                    Your Order
+                </h3>
+
+
+                <div id="checkout-items">
+
+                </div>
+
+
+                <hr>
+
+
+                <p>
+                    Subtotal:
+                    <strong id="checkout-subtotal">
+                        ₹0
+                    </strong>
+                </p>
+
+
+                <p>
+                    Shipping:
+                    <strong>
+                        FREE
+                    </strong>
+                </p>
+
+
+                <hr>
+
+
+                <h3>
+                    Total:
+                    <strong id="checkout-total">
+                        ₹0
+                    </strong>
+                </h3>
+
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <p>
+            © 2026 CodeAlpha E-Commerce Store
+        </p>
+
+    </footer>
+
+
+
+    <!-- =========================
+         CHECKOUT JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+        // Get logged-in user
+
+        const user =
+            JSON.parse(
+                localStorage.getItem("user")
+            );
+
+
+        // Checkout requires login
+
+        if (!user) {
+
+            alert(
+                "Please login before checkout 🔐"
+            );
+
+            window.location.href =
+                "auth.html?redirect=checkout";
+
+        }
+
+
+
+        // Get cart
+
+        const cart =
+            JSON.parse(
+                localStorage.getItem("cart")
+            ) || [];
+
+
+
+        // If cart is empty
+
+        if (cart.length === 0) {
+
+            alert(
+                "Your cart is empty 🛒"
+            );
+
+            window.location.href =
+                "index.html";
+
+        }
+
+
+
+        // Fill customer name
+
+        document.getElementById(
+            "name"
+        ).value =
+            user ? user.name : "";
+
+
+
+        // Show order items
+
+        const itemsContainer =
+            document.getElementById(
+                "checkout-items"
+            );
+
+
+        let total = 0;
+
+
+        cart.forEach(
+            function (item) {
+
+                const itemTotal =
+                    item.price *
+                    item.quantity;
+
+
+                total += itemTotal;
+
+
+                const itemElement =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                itemElement.className =
+                    "checkout-item";
+
+
+                itemElement.innerHTML = `
+
+                    <p>
+
+                        <strong>
+                            ${item.name}
+                        </strong>
+
+                        <br>
+
+                        Quantity:
+                        ${item.quantity}
+
+                        <br>
+
+                        ₹${itemTotal}
+
+                    </p>
+
+                `;
+
+
+                itemsContainer.appendChild(
+                    itemElement
+                );
+
+            }
+        );
+
+
+
+        // Show totals
+
+        document.getElementById(
+            "checkout-subtotal"
+        ).textContent =
+            `₹${total}`;
+
+
+        document.getElementById(
+            "checkout-total"
+        ).textContent =
+            `₹${total}`;
+
+
+
+        // =========================
+        // PLACE ORDER
+        // =========================
+
+        document.getElementById(
+            "checkout-form"
+        ).addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const phone =
+                    document.getElementById(
+                        "phone"
+                    ).value;
+
+
+                const address =
+                    document.getElementById(
+                        "address"
+                    ).value;
+
+
+                const city =
+                    document.getElementById(
+                        "city"
+                    ).value;
+
+
+                const pincode =
+                    document.getElementById(
+                        "pincode"
+                    ).value;
+
+
+
+                // Basic validation
+
+                if (
+                    phone.length !== 10 ||
+                    pincode.length !== 6
+                ) {
+
+                    alert(
+                        "Please enter a valid phone number and pincode."
+                    );
+
+                    return;
+
+                }
+
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/orders",
+                            {
+
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        userId:
+                                            user.id,
+
+                                        total:
+                                            total,
+
+                                        phone:
+                                            phone,
+
+                                        address:
+                                            address,
+
+                                        city:
+                                            city,
+
+                                        pincode:
+                                            pincode,
+
+                                        items:
+                                            cart
+
+                                    })
+
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+
+                    if (response.ok) {
+
+                        alert(
+                            "Order placed successfully! 🎉"
+                        );
+
+
+                        // Clear cart
+
+                        localStorage.removeItem(
+                            "cart"
+                        );
+
+
+                        // Remove checkout flag
+
+                        localStorage.removeItem(
+                            "checkoutPending"
+                        );
+
+
+                        // Go home
+
+                        window.location.href =
+                            "index.html";
+
+                    } else {
+
+                        alert(
+                            data.message ||
+                            "Unable to place order."
+                        );
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+
+                    alert(
+                        "Something went wrong. Please try again."
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>

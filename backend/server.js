@@ -4,7 +4,7 @@ const db = require("./database");
 
 const app = express();
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 
 // ======================================================
@@ -331,6 +331,7 @@ app.post("/api/orders", (req, res) => {
 
 app.listen(
     PORT,
+    "0.0.0.0",
     () => {
 
         console.log(

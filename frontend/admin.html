@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Dashboard | CodeAlpha Store</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+    <header>
+
+        <h1>
+            CodeAlpha Store 🛍️
+        </h1>
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="cart.html">
+                Cart 🛒
+            </a>
+
+            <a href="admin.html">
+                Admin 📊
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <main>
+
+        <h2>
+            Admin Dashboard 📊
+        </h2>
+
+
+        <section class="admin-stats">
+
+            <div class="admin-card">
+                <h3>👥 Users</h3>
+                <p id="total-users">0</p>
+            </div>
+
+            <div class="admin-card">
+                <h3>📦 Orders</h3>
+                <p id="total-orders">0</p>
+            </div>
+
+            <div class="admin-card">
+                <h3>💰 Total Sales</h3>
+                <p id="total-sales">₹0</p>
+            </div>
+
+        </section>
+
+
+        <section>
+
+            <h2>
+                All Users 👥
+            </h2>
+
+            <div id="users-container">
+                Loading users...
+            </div>
+
+        </section>
+
+
+        <section>
+
+            <h2>
+                All Orders 📦
+            </h2>
+
+            <div id="orders-container">
+                Loading orders...
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            © 2026 CodeAlpha E-Commerce Store
+        </p>
+
+    </footer>
+<script>
+
+async function loadAdminData() {
+
+    const usersResponse =
+        await fetch("/api/admin/users");
+
+    const users =
+        await usersResponse.json();
+
+    const ordersResponse =
+        await fetch("/api/admin/orders");
+
+    const orders =
+        await ordersResponse.json();
+
+
+    // Stats
+    document.getElementById("total-users")
+        .textContent = users.length;
+
+    document.getElementById("total-orders")
+        .textContent = orders.length;
+
+
+    const totalSales =
+        orders.reduce(
+            (total, order) =>
+                total + order.total,
+            0
+        );
+
+    document.getElementById("total-sales")
+        .textContent = "₹" + totalSales;
+
+
+    // Users
+    const usersContainer =
+        document.getElementById(
+            "users-container"
+        );
+
+    usersContainer.innerHTML = `
+        <table class="admin-table">
+
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+            </tr>
+
+            ${users.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || "Not provided"}</td>
+                </tr>
+            `).join("")}
+
+        </table>
+    `;
+
+
+    // Orders
+    const ordersContainer =
+        document.getElementById(
+            "orders-container"
+        );
+
+    ordersContainer.innerHTML = `
+        <table class="admin-table">
+
+            <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Email</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+
+            ${orders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>${order.name || "Unknown"}</td>
+                    <td>${order.email || "Unknown"}</td>
+                    <td>₹${order.total}</td>
+                    <td>${order.status}</td>
+                    <td>${order.created_at}</td>
+                </tr>
+            `).join("")}
+
+        </table>
+    `;
+}
+
+
+loadAdminData();
+
+</script>
+<script>
+
+fetch("/api/admin/check")
+    .then(function(response) {
+
+        if (!response.ok) {
+            window.location.href =
+                "admin-login.html";
+        }
+
+        return response.json();
+
+    })
+    .then(function(data) {
+
+        if (!data.isAdmin) {
+            window.location.href =
+                "admin-login.html";
+        }
+
+    })
+    .catch(function() {
+
+        window.location.href =
+            "admin-login.html";
+
+    });
+
+</script>
+</body>
+
+</html>

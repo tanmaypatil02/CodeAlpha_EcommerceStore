@@ -1,9 +1,9 @@
 const express = require("express");
 const path = require("path");
-const db = require("./database");
+const db = require("./database-pg");
+const session = require("express-session");
 
 const app = express();
-
 const PORT = process.env.PORT || 5000;
 
 
@@ -13,9 +13,19 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 
+app.use(
+    session({
+        secret: "codealpha-admin-secret",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: false
+        }
+    })
+);
 
 // Serve frontend files
-
 app.use(
     express.static(
         path.join(__dirname, "../frontend"),
@@ -46,27 +56,22 @@ app.get("/", (req, res) => {
 // PRODUCTS API
 // ======================================================
 
-app.get("/api/products", (req, res) => {
+app.get("/api/products", async (req, res) => {
 
     try {
 
-        const products =
-            db
-                .prepare(
-                    "SELECT * FROM products"
-                )
-                .all();
+        const result = await db.query(
+            "SELECT * FROM products ORDER BY id"
+        );
 
-
-        res.json(products);
+        res.json(result.rows);
 
     } catch (error) {
 
         console.error(error);
 
         res.status(500).json({
-            message:
-                "Unable to load products"
+            message: "Unable to load products"
         });
 
     }
@@ -78,7 +83,7 @@ app.get("/api/products", (req, res) => {
 // REGISTER API
 // ======================================================
 
-app.post("/api/register", (req, res) => {
+app.post("/api/register", async (req, res) => {
 
     const {
         name,
@@ -87,65 +92,47 @@ app.post("/api/register", (req, res) => {
         phone
     } = req.body;
 
-
-    if (
-        !name ||
-        !email ||
-        !password
-    ) {
+    if (!name || !email || !password) {
 
         return res.status(400).json({
-
-            message:
-                "All fields are required"
-
+            message: "All fields are required"
         });
 
     }
 
-
     try {
 
-        const user =
-            db
-                .prepare(`
-                    INSERT INTO users
-                    (
-                        name,
-                        email,
-                        password,
-                        phone
-                    )
-                    VALUES (?, ?, ?, ?)
-                `)
-                .run(
-                    name,
-                    email,
-                    password,
-                    phone || null
-                );
-
+        const result = await db.query(
+            `
+            INSERT INTO users
+            (
+                name,
+                email,
+                password,
+                phone
+            )
+            VALUES ($1, $2, $3, $4)
+            RETURNING id
+            `,
+            [
+                name,
+                email,
+                password,
+                phone || null
+            ]
+        );
 
         res.json({
-
-            message:
-                "Registration successful!",
-
-            userId:
-                user.lastInsertRowid
-
+            message: "Registration successful!",
+            userId: result.rows[0].id
         });
 
     } catch (error) {
 
         console.error(error);
 
-
         res.status(400).json({
-
-            message:
-                "Email already registered"
-
+            message: "Email already registered"
         });
 
     }
@@ -157,53 +144,56 @@ app.post("/api/register", (req, res) => {
 // LOGIN API
 // ======================================================
 
-app.post("/api/login", (req, res) => {
+app.post("/api/login", async (req, res) => {
 
     const {
         email,
         password
     } = req.body;
 
+    try {
 
-    const user =
-        db
-            .prepare(`
-                SELECT
-                    id,
-                    name,
-                    email,
-                    phone
-                FROM users
-                WHERE email = ?
-                AND password = ?
-            `)
-            .get(
+        const result = await db.query(
+            `
+            SELECT
+                id,
+                name,
+                email,
+                phone
+            FROM users
+            WHERE email = $1
+            AND password = $2
+            `,
+            [
                 email,
                 password
-            );
+            ]
+        );
 
+        const user = result.rows[0];
 
-    if (!user) {
+        if (!user) {
 
-        return res.status(401).json({
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
 
-            message:
-                "Invalid email or password"
+        }
 
+        res.json({
+            message: "Login successful!",
+            user: user
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Unable to login"
         });
 
     }
-
-
-    res.json({
-
-        message:
-            "Login successful!",
-
-        user:
-            user
-
-    });
 
 });
 
@@ -212,7 +202,7 @@ app.post("/api/login", (req, res) => {
 // CREATE ORDER API
 // ======================================================
 
-app.post("/api/orders", (req, res) => {
+app.post("/api/orders", async (req, res) => {
 
     const {
         userId,
@@ -226,7 +216,6 @@ app.post("/api/orders", (req, res) => {
 
 
     // Check required information
-
     if (
         !userId ||
         !total ||
@@ -239,10 +228,7 @@ app.post("/api/orders", (req, res) => {
     ) {
 
         return res.status(400).json({
-
-            message:
-                "Please provide all order details"
-
+            message: "Please provide all order details"
         });
 
     }
@@ -250,58 +236,100 @@ app.post("/api/orders", (req, res) => {
 
     try {
 
-        // Make sure user exists
+        // =========================
+        // CHECK USER
+        // =========================
 
-        const user =
-            db
-                .prepare(`
-                    SELECT id
-                    FROM users
-                    WHERE id = ?
-                `)
-                .get(userId);
+        const userResult = await db.query(
+            `
+            SELECT id
+            FROM users
+            WHERE id = $1
+            `,
+            [userId]
+        );
+
+        const user = userResult.rows[0];
 
 
         if (!user) {
 
             return res.status(401).json({
-
-                message:
-                    "User not found. Please login again."
-
+                message: "User not found. Please login again."
             });
 
         }
 
 
-        // Save order
+        // =========================
+        // CREATE ORDER
+        // =========================
 
-        const order =
-            db
-                .prepare(`
-                    INSERT INTO orders
-                    (
-                        user_id,
-                        total,
-                        status
-                    )
-                    VALUES (?, ?, ?)
-                `)
-                .run(
-                    userId,
-                    total,
-                    "Pending"
-                );
+        const orderResult = await db.query(
+            `
+            INSERT INTO orders
+            (
+                user_id,
+                total,
+                phone,
+                address,
+                city,
+                pincode,
+                status
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING id
+            `,
+            [
+                userId,
+                total,
+                phone,
+                address,
+                city,
+                pincode,
+                "Pending"
+            ]
+        );
 
+
+        const orderId = orderResult.rows[0].id;
+
+
+        // =========================
+        // SAVE ORDER ITEMS
+        // =========================
+
+        for (const item of items) {
+
+            await db.query(
+                `
+                INSERT INTO order_items
+                (
+                    order_id,
+                    product_id,
+                    quantity,
+                    price
+                )
+                VALUES ($1, $2, $3, $4)
+                `,
+                [
+                    orderId,
+                    item.id,
+                    item.quantity,
+                    item.price
+                ]
+            );
+
+        }
+
+
+        // =========================
+        // SUCCESS RESPONSE
+        // =========================
 
         res.json({
-
-            message:
-                "Order placed successfully!",
-
-            orderId:
-                order.lastInsertRowid
-
+            message: "Order placed successfully!",
+            orderId: orderId
         });
 
 
@@ -312,17 +340,170 @@ app.post("/api/orders", (req, res) => {
             error
         );
 
-
         res.status(500).json({
-
-            message:
-                "Unable to place order"
-
+            message: "Unable to place order"
         });
 
     }
 
 });
+
+
+// ======================================================
+// ADMIN LOGIN
+// ======================================================
+
+app.post("/api/admin/login", (req, res) => {
+
+    const {
+        email,
+        password
+    } = req.body;
+
+
+    if (
+        email === "admin@codealpha.com" &&
+        password === "Admin@123"
+    ) {
+
+        req.session.isAdmin = true;
+
+        return res.json({
+            message: "Admin login successful"
+        });
+
+    }
+
+
+    res.status(401).json({
+        message: "Invalid admin credentials"
+    });
+
+});
+
+
+// ======================================================
+// ADMIN AUTH MIDDLEWARE
+// ======================================================
+
+function requireAdmin(req, res, next) {
+
+    if (req.session.isAdmin) {
+
+        return next();
+
+    }
+
+
+    res.status(403).json({
+        message: "Admin access required"
+    });
+
+}
+
+
+// ======================================================
+// ADMIN SESSION CHECK
+// ======================================================
+
+app.get("/api/admin/check", (req, res) => {
+
+    if (req.session.isAdmin) {
+
+        return res.json({
+            isAdmin: true
+        });
+
+    }
+
+
+    res.status(403).json({
+        isAdmin: false
+    });
+
+});
+
+
+// ======================================================
+// ADMIN USERS API
+// ======================================================
+
+app.get(
+    "/api/admin/users",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const result = await db.query(
+                `
+                SELECT
+                    id,
+                    name,
+                    email,
+                    phone
+                FROM users
+                ORDER BY id DESC
+                `
+            );
+
+            res.json(result.rows);
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+                message: "Unable to load users"
+            });
+
+        }
+
+    }
+);
+
+
+// ======================================================
+// ADMIN ORDERS API
+// ======================================================
+
+app.get(
+    "/api/admin/orders",
+    requireAdmin,
+    async (req, res) => {
+
+        try {
+
+            const result = await db.query(
+                `
+                SELECT
+                    orders.id,
+                    users.name,
+                    users.email,
+                    orders.total,
+                    orders.status,
+                    orders.created_at
+                FROM orders
+                LEFT JOIN users
+                ON orders.user_id = users.id
+                ORDER BY orders.id DESC
+                `
+            );
+
+            res.json(result.rows);
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+                message: "Unable to load orders"
+            });
+
+        }
+
+    }
+);
 
 
 // ======================================================

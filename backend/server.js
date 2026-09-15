@@ -25,7 +25,9 @@ app.use(
     })
 );
 
+
 // Serve frontend files
+
 app.use(
     express.static(
         path.join(__dirname, "../frontend"),
@@ -92,6 +94,7 @@ app.post("/api/register", async (req, res) => {
         phone
     } = req.body;
 
+
     if (!name || !email || !password) {
 
         return res.status(400).json({
@@ -99,6 +102,7 @@ app.post("/api/register", async (req, res) => {
         });
 
     }
+
 
     try {
 
@@ -122,17 +126,25 @@ app.post("/api/register", async (req, res) => {
             ]
         );
 
+
         res.json({
-            message: "Registration successful!",
-            userId: result.rows[0].id
+
+            message:
+                "Registration successful!",
+
+            userId:
+                result.rows[0].id
+
         });
+
 
     } catch (error) {
 
         console.error(error);
 
         res.status(400).json({
-            message: "Email already registered"
+            message:
+                "Email already registered"
         });
 
     }
@@ -150,6 +162,7 @@ app.post("/api/login", async (req, res) => {
         email,
         password
     } = req.body;
+
 
     try {
 
@@ -170,27 +183,43 @@ app.post("/api/login", async (req, res) => {
             ]
         );
 
-        const user = result.rows[0];
+
+        const user =
+            result.rows[0];
+
 
         if (!user) {
 
             return res.status(401).json({
-                message: "Invalid email or password"
+
+                message:
+                    "Invalid email or password"
+
             });
 
         }
 
+
         res.json({
-            message: "Login successful!",
-            user: user
+
+            message:
+                "Login successful!",
+
+            user:
+                user
+
         });
+
 
     } catch (error) {
 
         console.error(error);
 
         res.status(500).json({
-            message: "Unable to login"
+
+            message:
+                "Unable to login"
+
         });
 
     }
@@ -211,11 +240,13 @@ app.post("/api/orders", async (req, res) => {
         address,
         city,
         pincode,
-        items
+        items,
+        paymentMethod
     } = req.body;
 
 
     // Check required information
+
     if (
         !userId ||
         !total ||
@@ -228,7 +259,10 @@ app.post("/api/orders", async (req, res) => {
     ) {
 
         return res.status(400).json({
-            message: "Please provide all order details"
+
+            message:
+                "Please provide all order details"
+
         });
 
     }
@@ -240,22 +274,28 @@ app.post("/api/orders", async (req, res) => {
         // CHECK USER
         // =========================
 
-        const userResult = await db.query(
-            `
-            SELECT id
-            FROM users
-            WHERE id = $1
-            `,
-            [userId]
-        );
+        const userResult =
+            await db.query(
+                `
+                SELECT id
+                FROM users
+                WHERE id = $1
+                `,
+                [userId]
+            );
 
-        const user = userResult.rows[0];
+
+        const user =
+            userResult.rows[0];
 
 
         if (!user) {
 
             return res.status(401).json({
-                message: "User not found. Please login again."
+
+                message:
+                    "User not found. Please login again."
+
             });
 
         }
@@ -265,34 +305,49 @@ app.post("/api/orders", async (req, res) => {
         // CREATE ORDER
         // =========================
 
-        const orderResult = await db.query(
-            `
-            INSERT INTO orders
-            (
-                user_id,
-                total,
-                phone,
-                address,
-                city,
-                pincode,
-                status
-            )
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id
-            `,
-            [
-                userId,
-                total,
-                phone,
-                address,
-                city,
-                pincode,
-                "Pending"
-            ]
-        );
+        const orderResult =
+            await db.query(
+                `
+                INSERT INTO orders
+                (
+                    user_id,
+                    total,
+                    phone,
+                    address,
+                    city,
+                    pincode,
+                    status,
+                    payment_method
+                )
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6,
+                    $7,
+                    $8
+                )
+                RETURNING id
+                `,
+                [
+                    userId,
+                    total,
+                    phone,
+                    address,
+                    city,
+                    pincode,
+                    "Pending",
+                    paymentMethod ||
+                        "Cash on Delivery"
+                ]
+            );
 
 
-        const orderId = orderResult.rows[0].id;
+        const orderId =
+            orderResult.rows[0].id;
 
 
         // =========================
@@ -310,7 +365,13 @@ app.post("/api/orders", async (req, res) => {
                     quantity,
                     price
                 )
-                VALUES ($1, $2, $3, $4)
+                VALUES
+                (
+                    $1,
+                    $2,
+                    $3,
+                    $4
+                )
                 `,
                 [
                     orderId,
@@ -328,8 +389,13 @@ app.post("/api/orders", async (req, res) => {
         // =========================
 
         res.json({
-            message: "Order placed successfully!",
-            orderId: orderId
+
+            message:
+                "Order placed successfully!",
+
+            orderId:
+                orderId
+
         });
 
 
@@ -340,55 +406,313 @@ app.post("/api/orders", async (req, res) => {
             error
         );
 
+
         res.status(500).json({
-            message: "Unable to place order"
+
+            message:
+                "Unable to place order"
+
         });
 
     }
 
 });
+
+
+// ======================================================
+// REVIEWS API
+// ======================================================
+
+
+// GET REVIEWS FOR PRODUCT
+
+app.get(
+    "/api/reviews/:productId",
+    async (req, res) => {
+
+        const {
+            productId
+        } = req.params;
+
+
+        try {
+
+            const result =
+                await db.query(
+                    `
+                    SELECT
+                        reviews.id,
+                        reviews.rating,
+                        reviews.review_text,
+                        reviews.created_at,
+                        users.name
+                    FROM reviews
+                    LEFT JOIN users
+                    ON reviews.user_id = users.id
+                    WHERE reviews.product_id = $1
+                    ORDER BY reviews.created_at DESC
+                    `,
+                    [productId]
+                );
+
+
+            res.json(
+                result.rows
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Review loading error:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                message:
+                    "Unable to load reviews"
+
+            });
+
+        }
+
+    }
+);
+
+
+// ADD REVIEW
+
+app.post(
+    "/api/reviews",
+    async (req, res) => {
+
+        const {
+            productId,
+            userId,
+            rating,
+            reviewText
+        } = req.body;
+
+
+        // =========================
+        // VALIDATION
+        // =========================
+
+        if (
+            !productId ||
+            !userId ||
+            !rating ||
+            !reviewText
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Please provide all review details"
+
+            });
+
+        }
+
+
+        if (
+            Number(rating) < 1 ||
+            Number(rating) > 5
+        ) {
+
+            return res.status(400).json({
+
+                message:
+                    "Rating must be between 1 and 5"
+
+            });
+
+        }
+
+
+        try {
+
+            // =========================
+            // CHECK USER
+            // =========================
+
+            const userResult =
+                await db.query(
+                    `
+                    SELECT id
+                    FROM users
+                    WHERE id = $1
+                    `,
+                    [userId]
+                );
+
+
+            if (
+                userResult.rows.length === 0
+            ) {
+
+                return res.status(401).json({
+
+                    message:
+                        "Please login before submitting a review"
+
+                });
+
+            }
+
+
+            // =========================
+            // CHECK PRODUCT
+            // =========================
+
+            const productResult =
+                await db.query(
+                    `
+                    SELECT id
+                    FROM products
+                    WHERE id = $1
+                    `,
+                    [productId]
+                );
+
+
+            if (
+                productResult.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    message:
+                        "Product not found"
+
+                });
+
+            }
+
+
+            // =========================
+            // SAVE REVIEW
+            // =========================
+
+            const result =
+                await db.query(
+                    `
+                    INSERT INTO reviews
+                    (
+                        product_id,
+                        user_id,
+                        rating,
+                        review_text
+                    )
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4
+                    )
+                    RETURNING id
+                    `,
+                    [
+                        productId,
+                        userId,
+                        rating,
+                        reviewText
+                    ]
+                );
+
+
+            res.json({
+
+                message:
+                    "Review submitted successfully! ⭐",
+
+                reviewId:
+                    result.rows[0].id
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Review error:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                message:
+                    "Unable to submit review"
+
+            });
+
+        }
+
+    }
+);
 
 
 // ======================================================
 // ADMIN LOGIN
 // ======================================================
 
-app.post("/api/admin/login", (req, res) => {
+app.post(
+    "/api/admin/login",
+    (req, res) => {
 
-    const {
-        email,
-        password
-    } = req.body;
+        const {
+            email,
+            password
+        } = req.body;
 
 
-    if (
-        email === "admin@codealpha.com" &&
-        password === "Admin@123"
-    ) {
+        if (
+            email === "admin@codealpha.com" &&
+            password === "Admin@123"
+        ) {
 
-        req.session.isAdmin = true;
+            req.session.isAdmin =
+                true;
 
-        return res.json({
-            message: "Admin login successful"
+
+            return res.json({
+
+                message:
+                    "Admin login successful"
+
+            });
+
+        }
+
+
+        res.status(401).json({
+
+            message:
+                "Invalid admin credentials"
+
         });
 
     }
-
-
-    res.status(401).json({
-        message: "Invalid admin credentials"
-    });
-
-});
+);
 
 
 // ======================================================
 // ADMIN AUTH MIDDLEWARE
 // ======================================================
 
-function requireAdmin(req, res, next) {
+function requireAdmin(
+    req,
+    res,
+    next
+) {
 
-    if (req.session.isAdmin) {
+    if (
+        req.session.isAdmin
+    ) {
 
         return next();
 
@@ -396,7 +720,10 @@ function requireAdmin(req, res, next) {
 
 
     res.status(403).json({
-        message: "Admin access required"
+
+        message:
+            "Admin access required"
+
     });
 
 }
@@ -406,22 +733,33 @@ function requireAdmin(req, res, next) {
 // ADMIN SESSION CHECK
 // ======================================================
 
-app.get("/api/admin/check", (req, res) => {
+app.get(
+    "/api/admin/check",
+    (req, res) => {
 
-    if (req.session.isAdmin) {
+        if (
+            req.session.isAdmin
+        ) {
 
-        return res.json({
-            isAdmin: true
+            return res.json({
+
+                isAdmin:
+                    true
+
+            });
+
+        }
+
+
+        res.status(403).json({
+
+            isAdmin:
+                false
+
         });
 
     }
-
-
-    res.status(403).json({
-        isAdmin: false
-    });
-
-});
+);
 
 
 // ======================================================
@@ -435,26 +773,35 @@ app.get(
 
         try {
 
-            const result = await db.query(
-                `
-                SELECT
-                    id,
-                    name,
-                    email,
-                    phone
-                FROM users
-                ORDER BY id DESC
-                `
+            const result =
+                await db.query(
+                    `
+                    SELECT
+                        id,
+                        name,
+                        email,
+                        phone
+                    FROM users
+                    ORDER BY id DESC
+                    `
+                );
+
+
+            res.json(
+                result.rows
             );
 
-            res.json(result.rows);
 
         } catch (error) {
 
             console.error(error);
 
+
             res.status(500).json({
-                message: "Unable to load users"
+
+                message:
+                    "Unable to load users"
+
             });
 
         }
@@ -474,30 +821,40 @@ app.get(
 
         try {
 
-            const result = await db.query(
-                `
-                SELECT
-                    orders.id,
-                    users.name,
-                    users.email,
-                    orders.total,
-                    orders.status,
-                    orders.created_at
-                FROM orders
-                LEFT JOIN users
-                ON orders.user_id = users.id
-                ORDER BY orders.id DESC
-                `
+            const result =
+                await db.query(
+                    `
+                    SELECT
+                        orders.id,
+                        users.name,
+                        users.email,
+                        orders.total,
+                        orders.status,
+                        orders.payment_method,
+                        orders.created_at
+                    FROM orders
+                    LEFT JOIN users
+                    ON orders.user_id = users.id
+                    ORDER BY orders.id DESC
+                    `
+                );
+
+
+            res.json(
+                result.rows
             );
 
-            res.json(result.rows);
 
         } catch (error) {
 
             console.error(error);
 
+
             res.status(500).json({
-                message: "Unable to load orders"
+
+                message:
+                    "Unable to load orders"
+
             });
 
         }

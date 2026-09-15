@@ -2,6 +2,7 @@ const { Pool } = require("pg");
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+
     ssl: {
         rejectUnauthorized: false
     }
@@ -190,7 +191,9 @@ async function initializeDatabase() {
                     stock
                 )
                 VALUES ($1, $2, $3, $4, $5, $6)
-                ON CONFLICT (name) DO NOTHING
+
+                ON CONFLICT (name)
+                DO NOTHING
                 `,
                 product
             );
@@ -206,11 +209,17 @@ async function initializeDatabase() {
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
+
                 id SERIAL PRIMARY KEY,
+
                 name TEXT NOT NULL,
+
                 email TEXT UNIQUE NOT NULL,
+
                 password TEXT NOT NULL,
+
                 phone TEXT
+
             )
         `);
 
@@ -221,29 +230,59 @@ async function initializeDatabase() {
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS orders (
+
                 id SERIAL PRIMARY KEY,
+
                 user_id INTEGER REFERENCES users(id),
+
                 total REAL NOT NULL,
+
                 phone TEXT,
+
                 address TEXT,
+
                 city TEXT,
+
                 pincode TEXT,
+
                 status TEXT DEFAULT 'Pending',
+
+                payment_method TEXT DEFAULT 'Cash on Delivery',
+
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
             )
         `);
 
 
         // =========================
-        // ADD DELIVERY COLUMNS
+        // ADD OLD ORDER COLUMNS
         // =========================
 
         await pool.query(`
             ALTER TABLE orders
-            ADD COLUMN IF NOT EXISTS phone TEXT,
-            ADD COLUMN IF NOT EXISTS address TEXT,
-            ADD COLUMN IF NOT EXISTS city TEXT,
+            ADD COLUMN IF NOT EXISTS phone TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS address TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS city TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
             ADD COLUMN IF NOT EXISTS pincode TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE orders
+            ADD COLUMN IF NOT EXISTS payment_method TEXT
+            DEFAULT 'Cash on Delivery'
         `);
 
 
@@ -253,15 +292,55 @@ async function initializeDatabase() {
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS order_items (
+
                 id SERIAL PRIMARY KEY,
-                order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
-                product_id INTEGER REFERENCES products(id),
+
+                order_id INTEGER
+                    REFERENCES orders(id)
+                    ON DELETE CASCADE,
+
+                product_id INTEGER
+                    REFERENCES products(id),
+
                 quantity INTEGER NOT NULL,
+
                 price REAL NOT NULL
+
             )
         `);
 
         console.log("✅ Order items table created successfully!");
+
+
+        // =========================
+        // REVIEWS TABLE
+        // =========================
+
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS reviews (
+
+                id SERIAL PRIMARY KEY,
+
+                product_id INTEGER
+                    REFERENCES products(id)
+                    ON DELETE CASCADE,
+
+                user_id INTEGER
+                    REFERENCES users(id)
+                    ON DELETE CASCADE,
+
+                rating INTEGER NOT NULL
+                    CHECK (rating >= 1 AND rating <= 5),
+
+                review_text TEXT NOT NULL,
+
+                created_at TIMESTAMP
+                    DEFAULT CURRENT_TIMESTAMP
+
+            )
+        `);
+
+        console.log("✅ Reviews table created successfully!");
 
 
         // =========================

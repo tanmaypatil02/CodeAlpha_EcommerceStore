@@ -2,193 +2,1343 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Product Details | CodeAlpha Store</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
+
+<!-- ==================================================
+     HEADER
+================================================== -->
+
 <header>
-    <h1>CodeAlpha Store 🛍️</h1>
+
+    <div class="logo">
+        CodeAlpha Store
+    </div>
+
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="index.html">Products</a>
-        <a href="cart.html">Cart 🛒</a>
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a href="index.html#products">
+            Products
+        </a>
+
+        <a href="cart.html">
+            Cart 🛒
+        </a>
+
+        <a
+            href="auth.html"
+            id="account-link"
+        >
+            Login
+        </a>
+
     </nav>
+
 </header>
 
 
-<main>
 
-    <div id="product-details">
+<!-- ==================================================
+     PRODUCT DETAILS
+================================================== -->
 
-        <div class="product-loading">
-            Loading product...
-        </div>
+<main class="product-page">
+
+    <div
+        class="product-detail-container"
+        id="product-container"
+    >
+
+        Loading product...
 
     </div>
+
+
+    <!-- =================================================
+         REVIEWS SECTION
+    ================================================== -->
+
+    <section class="reviews-section">
+
+        <h2>
+            Customer Reviews ⭐
+        </h2>
+
+
+        <!-- Rating Summary -->
+
+        <div
+            id="review-summary"
+            class="review-summary"
+        >
+
+            Loading ratings...
+
+        </div>
+
+
+
+        <!-- Review Form -->
+
+        <div
+            id="review-form-container"
+            class="review-form-container"
+        >
+
+        </div>
+
+
+
+        <!-- Reviews -->
+
+        <div
+            id="reviews-container"
+            class="reviews-container"
+        >
+
+            Loading reviews...
+
+        </div>
+
+    </section>
 
 </main>
 
 
-<footer>
-    <p>© 2026 CodeAlpha E-Commerce Store</p>
-</footer>
 
+<!-- ==================================================
+     SCRIPT
+================================================== -->
 
-<script src="script.js"></script>
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
 
-    const productId =
-        new URLSearchParams(window.location.search)
-        .get("id");
+// =====================================================
+// GET PRODUCT ID
+// =====================================================
 
-    const container =
-        document.getElementById("product-details");
+const urlParams =
+    new URLSearchParams(
+        window.location.search
+    );
 
-    if (!productId) {
-        container.innerHTML = `
-            <div class="product-loading">
-                Product not found.
-            </div>
-        `;
-        return;
-    }
 
-    fetch("/api/products")
-        .then(response => response.json())
-        .then(products => {
+const productId =
+    urlParams.get("id");
 
-            const product =
-                products.find(
-                    item => String(item.id) === String(productId)
-                );
 
-            if (!product) {
 
-                container.innerHTML = `
-                    <div class="product-loading">
-                        Product not found.
+// =====================================================
+// ELEMENTS
+// =====================================================
+
+const productContainer =
+    document.getElementById(
+        "product-container"
+    );
+
+
+const reviewSummary =
+    document.getElementById(
+        "review-summary"
+    );
+
+
+const reviewFormContainer =
+    document.getElementById(
+        "review-form-container"
+    );
+
+
+const reviewsContainer =
+    document.getElementById(
+        "reviews-container"
+    );
+
+
+
+// =====================================================
+// GET CURRENT USER
+// =====================================================
+
+const currentUser =
+    JSON.parse(
+        localStorage.getItem("user")
+    );
+
+
+
+// =====================================================
+// UPDATE ACCOUNT LINK
+// =====================================================
+
+const accountLink =
+    document.getElementById(
+        "account-link"
+    );
+
+
+if (currentUser) {
+
+    accountLink.textContent =
+        "Account";
+
+} else {
+
+    accountLink.textContent =
+        "Login";
+
+}
+
+
+
+// =====================================================
+// CHECK PRODUCT ID
+// =====================================================
+
+if (!productId) {
+
+    productContainer.innerHTML = `
+
+        <div class="product-error">
+
+            <h2>
+                Product not found
+            </h2>
+
+            <a href="index.html">
+                Back to Products
+            </a>
+
+        </div>
+
+    `;
+
+} else {
+
+    loadProduct();
+
+    loadReviews();
+
+}
+
+
+
+// =====================================================
+// LOAD PRODUCT
+// =====================================================
+
+async function loadProduct() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/products"
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load products"
+            );
+
+        }
+
+
+        const products =
+            await response.json();
+
+
+        const product =
+            products.find(
+                item =>
+                    String(item.id) ===
+                    String(productId)
+            );
+
+
+        if (!product) {
+
+            productContainer.innerHTML = `
+
+                <div class="product-error">
+
+                    <h2>
+                        Product not found
+                    </h2>
+
+                    <a href="index.html">
+                        Back to Products
+                    </a>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        // =============================================
+        // STOCK STATUS
+        // =============================================
+
+        let stockText =
+            "In Stock";
+
+
+        if (
+            Number(product.stock) <= 0
+        ) {
+
+            stockText =
+                "Out of Stock";
+
+        } else if (
+            Number(product.stock) <= 5
+        ) {
+
+            stockText =
+                `Only ${product.stock} left`;
+
+        }
+
+
+
+        // =============================================
+        // PRODUCT IMAGE
+        // =============================================
+
+        const imageHTML =
+            product.image
+                ? `
+                    <img
+                        src="${product.image}"
+                        alt="${product.name}"
+                        class="product-detail-image"
+                    >
+                `
+                : `
+                    <div class="product-image-placeholder">
+                        🛍️
                     </div>
                 `;
 
-                return;
+
+
+        // =============================================
+        // PRODUCT HTML
+        // =============================================
+
+        productContainer.innerHTML = `
+
+            <div class="product-detail-image-container">
+
+                ${imageHTML}
+
+            </div>
+
+
+            <div class="product-detail-info">
+
+                <p class="product-category">
+
+                    ${product.category}
+
+                </p>
+
+
+                <h1>
+
+                    ${product.name}
+
+                </h1>
+
+
+                <div
+                    id="product-rating"
+                    class="product-rating"
+                >
+
+                    ⭐ Loading rating...
+
+                </div>
+
+
+                <h2 class="product-detail-price">
+
+                    ₹${Number(product.price).toFixed(2)}
+
+                </h2>
+
+
+                <p class="product-description">
+
+                    ${product.description || "No description available."}
+
+                </p>
+
+
+                <p class="product-stock">
+
+                    📦 ${stockText}
+
+                </p>
+
+
+                <div class="product-actions">
+
+                    <button
+                        class="add-cart-btn"
+                        onclick="addProductToCart(
+                            ${product.id},
+                            '${escapeProductName(product.name)}',
+                            ${product.price}
+                        )"
+                        ${Number(product.stock) <= 0 ? "disabled" : ""}
+                    >
+
+                        🛒 Add to Cart
+
+                    </button>
+
+
+                    <button
+                        class="buy-now-btn"
+                        onclick="buyNow(
+                            ${product.id},
+                            '${escapeProductName(product.name)}',
+                            ${product.price}
+                        )"
+                        ${Number(product.stock) <= 0 ? "disabled" : ""}
+                    >
+
+                        ⚡ Buy Now
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+    } catch (error) {
+
+        console.error(
+            "Product loading error:",
+            error
+        );
+
+
+        productContainer.innerHTML = `
+
+            <div class="product-error">
+
+                <h2>
+                    Unable to load product
+                </h2>
+
+                <p>
+                    Please try again later.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+// =====================================================
+// LOAD REVIEWS
+// =====================================================
+
+async function loadReviews() {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/reviews/${productId}`
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load reviews"
+            );
+
+        }
+
+
+        const reviews =
+            await response.json();
+
+
+
+        // =============================================
+        // CALCULATE AVERAGE
+        // =============================================
+
+        let averageRating = 0;
+
+
+        if (reviews.length > 0) {
+
+            const totalRating =
+                reviews.reduce(
+                    (sum, review) =>
+                        sum +
+                        Number(review.rating),
+                    0
+                );
+
+
+            averageRating =
+                totalRating /
+                reviews.length;
+
+        }
+
+
+
+        // =============================================
+        // RATING DISPLAY
+        // =============================================
+
+        const roundedRating =
+            averageRating.toFixed(1);
+
+
+        const stars =
+            createStars(
+                averageRating
+            );
+
+
+        reviewSummary.innerHTML = `
+
+            <div class="average-rating">
+
+                <strong>
+                    ${roundedRating}
+                </strong>
+
+                <span class="rating-stars">
+
+                    ${stars}
+
+                </span>
+
+                <span>
+
+                    ${reviews.length}
+                    ${
+                        reviews.length === 1
+                            ? "review"
+                            : "reviews"
+                    }
+
+                </span>
+
+            </div>
+
+        `;
+
+
+
+        // =============================================
+        // UPDATE PRODUCT RATING
+        // =============================================
+
+        const productRating =
+            document.getElementById(
+                "product-rating"
+            );
+
+
+        if (productRating) {
+
+            if (reviews.length > 0) {
+
+                productRating.innerHTML = `
+
+                    ${createStars(averageRating)}
+
+                    <span>
+                        ${roundedRating} / 5
+                    </span>
+
+                    <span>
+                        (${reviews.length}
+                        ${
+                            reviews.length === 1
+                                ? "review"
+                                : "reviews"
+                        })
+                    </span>
+
+                `;
+
+            } else {
+
+                productRating.innerHTML = `
+
+                    ⭐ No reviews yet
+
+                `;
+
             }
 
-            container.innerHTML = `
+        }
 
-                <div class="details-card">
 
-                    <div class="details-image">
-                        🛍️
-                    </div>
 
-                    <div class="details-content">
+        // =============================================
+        // REVIEW FORM
+        // =============================================
 
-                        <span class="details-category">
-                            ${product.category.toUpperCase()}
-                        </span>
+        showReviewForm();
 
-                        <h2>
-                            ${product.name}
-                        </h2>
 
-                        <div class="details-rating">
-                            ⭐⭐⭐⭐⭐
-                            <span>4.8 / 5</span>
-                        </div>
 
-                        <h3 class="details-price">
-                            ₹${product.price.toLocaleString("en-IN")}
-                        </h3>
+        // =============================================
+        // DISPLAY REVIEWS
+        // =============================================
 
-                        <p class="details-description">
-                            ${product.description}
-                        </p>
+        if (reviews.length === 0) {
 
-                        <div class="stock-status">
-                            ✓ In Stock
-                        </div>
+            reviewsContainer.innerHTML = `
 
-                        <div class="details-actions">
+                <div class="no-reviews">
 
-                            <button
-                                class="details-cart-btn"
-                                onclick="addProductToCart(
-                                    ${product.id},
-                                    '${product.name.replace(/'/g, "\\'")}',
-                                    ${product.price}
-                                )">
-                                🛒 Add to Cart
-                            </button>
+                    <p>
+                        No reviews yet.
+                    </p>
 
-                            <button
-                                class="buy-now-btn">
-                                Buy Now →
-                            </button>
-
-                        </div>
-
-                    </div>
+                    <p>
+                        Be the first to review this product! ⭐
+                    </p>
 
                 </div>
 
             `;
 
-        })
+            return;
 
-        .catch(error => {
-
-            console.error(error);
-
-            container.innerHTML = `
-                <div class="product-loading">
-                    Unable to load product.
-                </div>
-            `;
-
-        });
-
-});
+        }
 
 
-// Add product from details page
-function addProductToCart(id, name, price) {
+
+        reviewsContainer.innerHTML =
+            reviews
+                .map(review => {
+
+                    const reviewStars =
+                        createStars(
+                            Number(review.rating)
+                        );
+
+
+                    const reviewerName =
+                        review.name ||
+                        "Customer";
+
+
+                    const reviewDate =
+                        new Date(
+                            review.created_at
+                        ).toLocaleDateString(
+                            "en-IN",
+                            {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric"
+                            }
+                        );
+
+
+                    return `
+
+                        <div class="review-card">
+
+                            <div class="review-header">
+
+                                <div>
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            reviewerName
+                                        )}
+                                    </strong>
+
+                                    <div class="review-stars">
+
+                                        ${reviewStars}
+
+                                    </div>
+
+                                </div>
+
+
+                                <span class="review-date">
+
+                                    ${reviewDate}
+
+                                </span>
+
+                            </div>
+
+
+                            <p class="review-text">
+
+                                ${escapeHTML(
+                                    review.review_text
+                                )}
+
+                            </p>
+
+                        </div>
+
+                    `;
+
+                })
+                .join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Reviews loading error:",
+            error
+        );
+
+
+        reviewSummary.innerHTML = `
+            ⭐ Ratings unavailable
+        `;
+
+
+        reviewsContainer.innerHTML = `
+
+            <p>
+                Unable to load reviews right now.
+            </p>
+
+        `;
+
+        showReviewForm();
+
+    }
+
+}
+
+
+
+// =====================================================
+// SHOW REVIEW FORM
+// =====================================================
+
+function showReviewForm() {
+
+    if (!currentUser) {
+
+        reviewFormContainer.innerHTML = `
+
+            <div class="login-review-message">
+
+                <p>
+                    🔐 Please login to write a review.
+                </p>
+
+                <a href="auth.html">
+                    Login to Review
+                </a>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    reviewFormContainer.innerHTML = `
+
+        <div class="review-form">
+
+            <h3>
+                Write a Review ✍️
+            </h3>
+
+
+            <div class="star-selector">
+
+                <span>
+                    Your Rating:
+                </span>
+
+
+                <button
+                    type="button"
+                    class="star-btn"
+                    data-rating="1"
+                    onclick="selectRating(1)"
+                >
+                    ☆
+                </button>
+
+
+                <button
+                    type="button"
+                    class="star-btn"
+                    data-rating="2"
+                    onclick="selectRating(2)"
+                >
+                    ☆
+                </button>
+
+
+                <button
+                    type="button"
+                    class="star-btn"
+                    data-rating="3"
+                    onclick="selectRating(3)"
+                >
+                    ☆
+                </button>
+
+
+                <button
+                    type="button"
+                    class="star-btn"
+                    data-rating="4"
+                    onclick="selectRating(4)"
+                >
+                    ☆
+                </button>
+
+
+                <button
+                    type="button"
+                    class="star-btn"
+                    data-rating="5"
+                    onclick="selectRating(5)"
+                >
+                    ☆
+                </button>
+
+            </div>
+
+
+            <textarea
+                id="review-text"
+                placeholder="Share your experience with this product..."
+                rows="4"
+                maxlength="500"
+            ></textarea>
+
+
+            <button
+                type="button"
+                class="submit-review-btn"
+                onclick="submitReview()"
+            >
+
+                Submit Review ⭐
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    window.selectedRating = 0;
+
+}
+
+
+
+// =====================================================
+// SELECT RATING
+// =====================================================
+
+function selectRating(rating) {
+
+    window.selectedRating =
+        rating;
+
+
+    const buttons =
+        document.querySelectorAll(
+            ".star-btn"
+        );
+
+
+    buttons.forEach(
+        button => {
+
+            const buttonRating =
+                Number(
+                    button.dataset.rating
+                );
+
+
+            if (
+                buttonRating <= rating
+            ) {
+
+                button.textContent =
+                    "★";
+
+            } else {
+
+                button.textContent =
+                    "☆";
+
+            }
+
+        }
+    );
+
+}
+
+
+
+// =====================================================
+// SUBMIT REVIEW
+// =====================================================
+
+async function submitReview() {
+
+    const rating =
+        Number(
+            window.selectedRating || 0
+        );
+
+
+    const reviewTextElement =
+        document.getElementById(
+            "review-text"
+        );
+
+
+    const reviewText =
+        reviewTextElement
+            ? reviewTextElement.value.trim()
+            : "";
+
+
+
+    // =============================================
+    // VALIDATION
+    // =============================================
+
+    if (rating < 1) {
+
+        alert(
+            "Please select a rating."
+        );
+
+        return;
+
+    }
+
+
+    if (!reviewText) {
+
+        alert(
+            "Please write a review."
+        );
+
+        return;
+
+    }
+
+
+
+    // =============================================
+    // SUBMIT BUTTON
+    // =============================================
+
+    const button =
+        document.querySelector(
+            ".submit-review-btn"
+        );
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Submitting...";
+
+    }
+
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/reviews",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            productId:
+                                Number(productId),
+
+                            userId:
+                                currentUser.id,
+
+                            rating:
+                                rating,
+
+                            reviewText:
+                                reviewText
+
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to submit review"
+            );
+
+        }
+
+
+
+        // =========================================
+        // SUCCESS
+        // =========================================
+
+        alert(
+            "Review submitted successfully! ⭐"
+        );
+
+
+        // Reload reviews
+
+        await loadReviews();
+
+
+    } catch (error) {
+
+        console.error(
+            "Review submission error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Unable to submit review."
+        );
+
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Submit Review ⭐";
+
+        }
+
+    }
+
+}
+
+
+
+// =====================================================
+// CREATE STARS
+// =====================================================
+
+function createStars(rating) {
+
+    let stars = "";
+
+
+    for (
+        let i = 1;
+        i <= 5;
+        i++
+    ) {
+
+        if (
+            i <= Math.round(rating)
+        ) {
+
+            stars += "★";
+
+        } else {
+
+            stars += "☆";
+
+        }
+
+    }
+
+
+    return stars;
+
+}
+
+
+
+// =====================================================
+// ADD PRODUCT TO CART
+// =====================================================
+
+function addProductToCart(
+    id,
+    name,
+    price
+) {
 
     let cart =
-        JSON.parse(localStorage.getItem("cart")) || [];
+        JSON.parse(
+            localStorage.getItem("cart")
+        ) || [];
 
-    const existing =
-        cart.find(item => item.name === name);
 
-    if (existing) {
-        existing.quantity++;
+    const existingItem =
+        cart.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (existingItem) {
+
+        existingItem.quantity += 1;
+
     } else {
+
         cart.push({
-            name: name,
-            price: price,
-            quantity: 1
+
+            id:
+                id,
+
+            name:
+                name,
+
+            price:
+                Number(price),
+
+            quantity:
+                1
+
         });
+
     }
+
 
     localStorage.setItem(
         "cart",
         JSON.stringify(cart)
     );
 
-    showNotification(
-        "🛒 " + name + " added to cart!"
+
+    alert(
+        `${name} added to cart! 🛒`
     );
+
+}
+
+
+
+// =====================================================
+// BUY NOW
+// =====================================================
+
+function buyNow(
+    id,
+    name,
+    price
+) {
+
+    let cart =
+        JSON.parse(
+            localStorage.getItem("cart")
+        ) || [];
+
+
+    const existingItem =
+        cart.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (existingItem) {
+
+        existingItem.quantity += 1;
+
+    } else {
+
+        cart.push({
+
+            id:
+                id,
+
+            name:
+                name,
+
+            price:
+                Number(price),
+
+            quantity:
+                1
+
+        });
+
+    }
+
+
+    localStorage.setItem(
+        "cart",
+        JSON.stringify(cart)
+    );
+
+
+    const user =
+        JSON.parse(
+            localStorage.getItem("user")
+        );
+
+
+    if (!user) {
+
+        window.location.href =
+            "auth.html?redirect=checkout";
+
+        return;
+
+    }
+
+
+    window.location.href =
+        "checkout.html";
+
+}
+
+
+
+// =====================================================
+// ESCAPE PRODUCT NAME
+// =====================================================
+
+function escapeProductName(name) {
+
+    return String(name)
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        );
+
+}
+
+
+
+// =====================================================
+// ESCAPE HTML
+// =====================================================
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }
 
 </script>
+
 
 </body>
 

@@ -23,65 +23,69 @@
 <body>
 
 
-    <!-- =========================
-         HEADER
-    ========================== -->
+<!-- ==================================================
+     HEADER
+================================================== -->
 
-    <header>
+<header>
 
-        <h1>
-            CodeAlpha Store 🛍️
-        </h1>
-
-        <nav>
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="index.html#products-section">
-                Products
-            </a>
-
-            <a href="cart.html">
-                Cart 🛒
-            </a>
-
-        </nav>
-
-    </header>
+    <div class="logo">
+        CodeAlpha Store
+    </div>
 
 
+    <nav>
 
-    <!-- =========================
-         CHECKOUT
-    ========================== -->
+        <a href="index.html">
+            Home
+        </a>
 
-    <main>
+        <a href="index.html#products">
+            Products
+        </a>
 
-        <h2>
-            Checkout 🔐
-        </h2>
+        <a href="cart.html">
+            Cart 🛒
+        </a>
 
+    </nav>
 
-        <div class="checkout-container">
-
-
-            <!-- =========================
-                 CUSTOMER DETAILS
-            ========================== -->
-
-            <section class="checkout-form">
-
-                <h3>
-                    Delivery Details
-                </h3>
+</header>
 
 
-                <form id="checkout-form">
+
+<!-- ==================================================
+     CHECKOUT
+================================================== -->
+
+<main class="checkout-page">
 
 
-                    <!-- NAME -->
+    <div class="checkout-container">
+
+
+        <!-- ==========================================
+             DELIVERY DETAILS
+        =========================================== -->
+
+        <section class="checkout-form">
+
+            <h1>
+                Checkout 🛍️
+            </h1>
+
+
+            <p class="checkout-subtitle">
+                Enter your delivery details
+            </p>
+
+
+            <form id="checkout-form">
+
+
+                <!-- Name -->
+
+                <div class="form-group">
 
                     <label for="name">
                         Full Name
@@ -94,9 +98,13 @@
                         required
                     >
 
+                </div>
 
 
-                    <!-- PHONE -->
+
+                <!-- Phone -->
+
+                <div class="form-group">
 
                     <label for="phone">
                         Phone Number
@@ -105,30 +113,36 @@
                     <input
                         type="tel"
                         id="phone"
-                        placeholder="Enter 10-digit phone number"
-                        pattern="[0-9]{10}"
-                        maxlength="10"
+                        placeholder="Enter your phone number"
                         required
                     >
 
+                </div>
 
 
-                    <!-- ADDRESS -->
+
+                <!-- Address -->
+
+                <div class="form-group">
 
                     <label for="address">
-                        Delivery Address
+                        Address
                     </label>
 
                     <textarea
                         id="address"
-                        rows="4"
                         placeholder="Enter your complete address"
+                        rows="3"
                         required
                     ></textarea>
 
+                </div>
 
 
-                    <!-- CITY -->
+
+                <!-- City -->
+
+                <div class="form-group">
 
                     <label for="city">
                         City
@@ -141,9 +155,13 @@
                         required
                     >
 
+                </div>
 
 
-                    <!-- PINCODE -->
+
+                <!-- Pincode -->
+
+                <div class="form-group">
 
                     <label for="pincode">
                         Pincode
@@ -152,394 +170,536 @@
                     <input
                         type="text"
                         id="pincode"
-                        placeholder="Enter 6-digit pincode"
-                        pattern="[0-9]{6}"
-                        maxlength="6"
+                        placeholder="Enter your pincode"
                         required
                     >
-
-
-
-                    <!-- PLACE ORDER -->
-
-                    <button
-                        type="submit"
-                        class="checkout-btn"
-                    >
-                        Place Order 🛍️
-                    </button>
-
-
-                </form>
-
-            </section>
-
-
-
-            <!-- =========================
-                 ORDER SUMMARY
-            ========================== -->
-
-            <section class="checkout-summary">
-
-                <h3>
-                    Your Order
-                </h3>
-
-
-                <div id="checkout-items">
 
                 </div>
 
 
-                <hr>
+
+                <!-- ======================================
+                     PAYMENT METHOD
+                ======================================= -->
+
+                <div class="payment-section">
+
+                    <h3>
+                        Payment Method 💳
+                    </h3>
 
 
-                <p>
-                    Subtotal:
-                    <strong id="checkout-subtotal">
-                        ₹0
-                    </strong>
-                </p>
+                    <label class="payment-option">
+
+                        <input
+                            type="radio"
+                            name="payment-method"
+                            value="UPI"
+                            required
+                        >
+
+                        <span>
+                            📱 UPI
+                        </span>
+
+                    </label>
 
 
-                <p>
-                    Shipping:
-                    <strong>
-                        FREE
-                    </strong>
-                </p>
+
+                    <label class="payment-option">
+
+                        <input
+                            type="radio"
+                            name="payment-method"
+                            value="Card"
+                        >
+
+                        <span>
+                            💳 Credit / Debit Card
+                        </span>
+
+                    </label>
 
 
-                <hr>
+
+                    <label class="payment-option">
+
+                        <input
+                            type="radio"
+                            name="payment-method"
+                            value="Cash on Delivery"
+                        >
+
+                        <span>
+                            💵 Cash on Delivery
+                        </span>
+
+                    </label>
 
 
-                <h3>
-                    Total:
-                    <strong id="checkout-total">
-                        ₹0
-                    </strong>
-                </h3>
+                    <p class="payment-note">
+
+                        🔒 Payment is simulated for this
+                        demonstration project.
+
+                    </p>
+
+                </div>
 
 
-            </section>
 
+                <!-- ======================================
+                     PLACE ORDER
+                ======================================= -->
+
+                <button
+                    type="submit"
+                    class="checkout-btn"
+                >
+
+                    Place Order 🎉
+
+                </button>
+
+
+            </form>
+
+        </section>
+
+
+
+        <!-- ==========================================
+             ORDER SUMMARY
+        =========================================== -->
+
+        <section class="order-summary">
+
+            <h2>
+                Order Summary
+            </h2>
+
+
+            <div id="checkout-items">
+                Loading cart...
+            </div>
+
+
+            <div class="summary-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="checkout-total">
+                    ₹0
+                </strong>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+</main>
+
+
+
+<!-- ==================================================
+     SCRIPT
+================================================== -->
+
+<script>
+
+
+// =====================================================
+// GET USER
+// =====================================================
+
+const user =
+    JSON.parse(
+        localStorage.getItem("user")
+    );
+
+
+// =====================================================
+// CHECK LOGIN
+// =====================================================
+
+if (!user) {
+
+    alert(
+        "Please login before checkout."
+    );
+
+    window.location.href =
+        "auth.html?redirect=checkout";
+
+}
+
+
+
+// =====================================================
+// GET CART
+// =====================================================
+
+const cart =
+    JSON.parse(
+        localStorage.getItem("cart")
+    ) || [];
+
+
+// =====================================================
+// CHECK CART
+// =====================================================
+
+if (cart.length === 0) {
+
+    alert(
+        "Your cart is empty."
+    );
+
+    window.location.href =
+        "cart.html";
+
+}
+
+
+
+// =====================================================
+// DISPLAY ORDER SUMMARY
+// =====================================================
+
+const checkoutItems =
+    document.getElementById(
+        "checkout-items"
+    );
+
+const checkoutTotal =
+    document.getElementById(
+        "checkout-total"
+    );
+
+
+let total = 0;
+
+
+checkoutItems.innerHTML = "";
+
+
+cart.forEach(item => {
+
+    const itemTotal =
+        Number(item.price) *
+        Number(item.quantity);
+
+
+    total += itemTotal;
+
+
+    const itemElement =
+        document.createElement("div");
+
+
+    itemElement.className =
+        "checkout-item";
+
+
+    itemElement.innerHTML = `
+
+        <div>
+
+            <strong>
+                ${item.name}
+            </strong>
+
+            <p>
+                Quantity: ${item.quantity}
+            </p>
 
         </div>
 
-    </main>
+
+        <span>
+            ₹${itemTotal}
+        </span>
+
+    `;
+
+
+    checkoutItems.appendChild(
+        itemElement
+    );
+
+});
+
+
+checkoutTotal.textContent =
+    `₹${total.toFixed(2)}`;
 
 
 
-    <!-- =========================
-         FOOTER
-    ========================== -->
+// =====================================================
+// CHECKOUT FORM
+// =====================================================
 
-    <footer>
-
-        <p>
-            © 2026 CodeAlpha E-Commerce Store
-        </p>
-
-    </footer>
+const checkoutForm =
+    document.getElementById(
+        "checkout-form"
+    );
 
 
+checkoutForm.addEventListener(
+    "submit",
+    async function(event) {
 
-    <!-- =========================
-         CHECKOUT JAVASCRIPT
-    ========================== -->
-
-    <script>
-
-        // Get logged-in user
-
-        const user =
-            JSON.parse(
-                localStorage.getItem("user")
-            );
+        event.preventDefault();
 
 
-        // Checkout requires login
+        // =============================================
+        // GET FORM VALUES
+        // =============================================
 
-        if (!user) {
+        const name =
+            document.getElementById(
+                "name"
+            ).value.trim();
+
+
+        const phone =
+            document.getElementById(
+                "phone"
+            ).value.trim();
+
+
+        const address =
+            document.getElementById(
+                "address"
+            ).value.trim();
+
+
+        const city =
+            document.getElementById(
+                "city"
+            ).value.trim();
+
+
+        const pincode =
+            document.getElementById(
+                "pincode"
+            ).value.trim();
+
+
+        const paymentMethod =
+            document.querySelector(
+                'input[name="payment-method"]:checked'
+            )?.value;
+
+
+
+        // =============================================
+        // PAYMENT VALIDATION
+        // =============================================
+
+        if (!paymentMethod) {
 
             alert(
-                "Please login before checkout 🔐"
+                "Please select a payment method."
             );
 
-            window.location.href =
-                "auth.html?redirect=checkout";
+            return;
 
         }
 
 
 
-        // Get cart
+        // =============================================
+        // BASIC VALIDATION
+        // =============================================
 
-        const cart =
-            JSON.parse(
-                localStorage.getItem("cart")
-            ) || [];
-
-
-
-        // If cart is empty
-
-        if (cart.length === 0) {
+        if (
+            !name ||
+            !phone ||
+            !address ||
+            !city ||
+            !pincode
+        ) {
 
             alert(
-                "Your cart is empty 🛒"
+                "Please fill all delivery details."
             );
+
+            return;
+
+        }
+
+
+
+        // =============================================
+        // DISABLE BUTTON
+        // =============================================
+
+        const button =
+            checkoutForm.querySelector(
+                "button[type='submit']"
+            );
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "Processing Order...";
+
+
+
+        try {
+
+            // =========================================
+            // SEND ORDER TO SERVER
+            // =========================================
+
+            const response =
+                await fetch(
+                    "/api/orders",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                userId:
+                                    user.id,
+
+                                total:
+                                    total,
+
+                                phone:
+                                    phone,
+
+                                address:
+                                    address,
+
+                                city:
+                                    city,
+
+                                pincode:
+                                    pincode,
+
+                                paymentMethod:
+                                    paymentMethod,
+
+                                items:
+                                    cart
+
+                            })
+
+                    }
+                );
+
+
+
+            const data =
+                await response.json();
+
+
+
+            // =========================================
+            // HANDLE ERROR
+            // =========================================
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to place order"
+                );
+
+            }
+
+
+
+            // =========================================
+            // SUCCESS
+            // =========================================
+
+            if (
+                paymentMethod === "UPI" ||
+                paymentMethod === "Card"
+            ) {
+
+                alert(
+                    `Order placed successfully! 🎉\n\n` +
+                    `Payment method: ${paymentMethod}\n` +
+                    `Payment simulated successfully.`
+                );
+
+            } else {
+
+                alert(
+                    `Order placed successfully! 🎉\n\n` +
+                    `Payment method: Cash on Delivery`
+                );
+
+            }
+
+
+
+            // =========================================
+            // CLEAR CART
+            // =========================================
+
+            localStorage.removeItem(
+                "cart"
+            );
+
+
+            localStorage.removeItem(
+                "checkoutPending"
+            );
+
+
+
+            // =========================================
+            // GO HOME
+            // =========================================
 
             window.location.href =
                 "index.html";
 
-        }
 
+        } catch (error) {
 
-
-        // Fill customer name
-
-        document.getElementById(
-            "name"
-        ).value =
-            user ? user.name : "";
-
-
-
-        // Show order items
-
-        const itemsContainer =
-            document.getElementById(
-                "checkout-items"
+            console.error(
+                "Checkout error:",
+                error
             );
 
 
-        let total = 0;
+            alert(
+                error.message ||
+                "Something went wrong while placing your order."
+            );
 
 
-        cart.forEach(
-            function (item) {
+            // Re-enable button
 
-                const itemTotal =
-                    item.price *
-                    item.quantity;
+            button.disabled = false;
 
+            button.textContent =
+                "Place Order 🎉";
 
-                total += itemTotal;
+        }
 
+    }
+);
 
-                const itemElement =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                itemElement.className =
-                    "checkout-item";
-
-
-                itemElement.innerHTML = `
-
-                    <p>
-
-                        <strong>
-                            ${item.name}
-                        </strong>
-
-                        <br>
-
-                        Quantity:
-                        ${item.quantity}
-
-                        <br>
-
-                        ₹${itemTotal}
-
-                    </p>
-
-                `;
-
-
-                itemsContainer.appendChild(
-                    itemElement
-                );
-
-            }
-        );
-
-
-
-        // Show totals
-
-        document.getElementById(
-            "checkout-subtotal"
-        ).textContent =
-            `₹${total}`;
-
-
-        document.getElementById(
-            "checkout-total"
-        ).textContent =
-            `₹${total}`;
-
-
-
-        // =========================
-        // PLACE ORDER
-        // =========================
-
-        document.getElementById(
-            "checkout-form"
-        ).addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
-
-
-                const phone =
-                    document.getElementById(
-                        "phone"
-                    ).value;
-
-
-                const address =
-                    document.getElementById(
-                        "address"
-                    ).value;
-
-
-                const city =
-                    document.getElementById(
-                        "city"
-                    ).value;
-
-
-                const pincode =
-                    document.getElementById(
-                        "pincode"
-                    ).value;
-
-
-
-                // Basic validation
-
-                if (
-                    phone.length !== 10 ||
-                    pincode.length !== 6
-                ) {
-
-                    alert(
-                        "Please enter a valid phone number and pincode."
-                    );
-
-                    return;
-
-                }
-
-
-
-                try {
-
-                    const response =
-                        await fetch(
-                            "/api/orders",
-                            {
-
-                                method: "POST",
-
-                                headers: {
-                                    "Content-Type":
-                                        "application/json"
-                                },
-
-                                body:
-                                    JSON.stringify({
-
-                                        userId:
-                                            user.id,
-
-                                        total:
-                                            total,
-
-                                        phone:
-                                            phone,
-
-                                        address:
-                                            address,
-
-                                        city:
-                                            city,
-
-                                        pincode:
-                                            pincode,
-
-                                        items:
-                                            cart
-
-                                    })
-
-                            }
-                        );
-
-
-                    const data =
-                        await response.json();
-
-
-
-                    if (response.ok) {
-
-                        alert(
-                            "Order placed successfully! 🎉"
-                        );
-
-
-                        // Clear cart
-
-                        localStorage.removeItem(
-                            "cart"
-                        );
-
-
-                        // Remove checkout flag
-
-                        localStorage.removeItem(
-                            "checkoutPending"
-                        );
-
-
-                        // Go home
-
-                        window.location.href =
-                            "index.html";
-
-                    } else {
-
-                        alert(
-                            data.message ||
-                            "Unable to place order."
-                        );
-
-                    }
-
-
-                } catch (error) {
-
-                    console.error(error);
-
-
-                    alert(
-                        "Something went wrong. Please try again."
-                    );
-
-                }
-
-            }
-        );
-
-    </script>
+</script>
 
 
 </body>
